@@ -4,7 +4,10 @@
 ///Based on racer.h by James Heliotis
 ///CS243 HW8
 
+
+#define _BSD_SOURCE
 //LIBRARIES
+#include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -66,8 +69,15 @@ int main(int argc, char * argv[]){
   if(isdigit(argv[1][0])){//floating points too maybe
     maxspeed = strtol(argv[1], endptr, 10);//grab max speed
   }
+  else if(argv[1][0] == '.'){
+    maxspeed = strtol(argv[1], endptr, 10);//if float
+  }
   else{
     nameIndex = 1;//Is a racer name, move index down 1
+  }
+
+  if(maxspeed == 0){
+    maxspeed = DEFAULT_WAIT;
   }
 
   //Grab racer names
@@ -118,6 +128,24 @@ int main(int argc, char * argv[]){
 
   //Clear the terminal
   clear();
+
+  //Create threads
+  int countRacers = queue_size(rq);
+  pthread_t threads[countRacers];
+  counter = 0;
+  void *r;
+  while(queue_size(rq)){
+    //Create the threads from the queue
+    Racer * r = dequeue(rq);
+    int rc = pthread_create(&threads[counter] , NULL, run, r);
+    counter++;
+  }
+  destroyRaceQueue(rq);//destroy rq
+
+  for(int i = 0; i < countRacers; i++){
+    pthread_join(threads[i], &r);
+  }
+  set_cur_pos(countRacers + 2,0);
 
 
 }

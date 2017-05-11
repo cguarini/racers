@@ -98,18 +98,18 @@ void eraseRacer(Racer * racer){
 void * run(void * racer){
   Racer * r = (Racer *) racer;
   //Initialize racer on display
-  displayRacer(r);
-  while(1){
+  //displayRacer(r);
+  while(1){   
     //Calculate random waiting period between 0 and initial delay value
-    long wait = (rand() % waitPeriod);
-    if(wait <= 3){
+    long waittime = (rand() % waitPeriod);
+    if(waittime <= 3){
       r->graphic[1] = 'X';
       displayRacer(r);
       destroyRacer(r);
       pthread_exit(NULL);
       return;
     }
-    usleep(wait*1000);//sleep for wait milliseconds
+    usleep(waittime);//sleep for wait milliseconds
   
     //advance foward by one 
     eraseRacer(r);//erase current display of racer
