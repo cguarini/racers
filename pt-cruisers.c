@@ -33,6 +33,15 @@ void destroyQueue(queue * q){
   destroy_queue(q);//free queue struct
 }
 
+///destroyRaceQueue
+///Destroys the racing queue
+void destroyRaceQueue(queue * rq){
+  while(queue_size(rq)){
+    destroyRacer(dequeue(rq));//destroy the racer
+  }
+  destroy_queue(rq);//destroy the queue struct
+}
+
 ///main
 ///Initializes the random number generator
 ///and gathers command line arguments to turn into the race
@@ -49,10 +58,11 @@ int main(int argc, char * argv[]){
   //Gather arguments
   //Check for max speed delay
   long maxspeed = DEFAULT_WAIT;
-  char ** endptr;
-  queue q = init_queue;//for racer names
+  char ** endptr = NULL;
+  queue * q = init_queue();//for racer names
   int nameIndex = 2;//index of where names begin in arguments
-
+  
+  //check first argument for speed or car name
   if(isdigit(argv[1][0])){//floating points too maybe
     maxspeed = strtol(argv[1], endptr, 10);//grab max speed
   }
@@ -64,12 +74,12 @@ int main(int argc, char * argv[]){
   //loop through the arguments
   for(int i = nameIndex; i < argc; i++){
     //check if racer name is of correct size
-    if(strlen(argv[i]) < MAX_CAR_LEN+1){
+    if(strlen(argv[i]) < MAX_NAME_LEN+1){
       //malloc a space for the name on the heap
-      char * n = malloc(MAX_CAR_LEN+1);
+      char * n = malloc(MAX_NAME_LEN+1);
       int nullFound = 0;//for use in nested loop
-      strncpy(n, argv[i], MAX_CAR_LEN+1);//copy name into malloced space
-      for(int j = 0; j < MAX_CAR_LEN; j++){//loop through name to add dashes
+      strncpy(n, argv[i], MAX_NAME_LEN+1);//copy name into malloced space
+      for(int j = 0; j < MAX_NAME_LEN; j++){//loop through name to add dashes
         if(n[j] == 0x00){
           nullFound = 1;
           n[j] = '-';
@@ -94,6 +104,14 @@ int main(int argc, char * argv[]){
   }
 
 
+  //Create the racers
+  queue * rq = init_queue();
+  int counter = 0;
+  while(queue_size(q)){
+    Racer * r = makeRacer(dequeue(q), counter);
+    enqueue(rq, r, 0);
+    counter++;
+  }
 
 }
 

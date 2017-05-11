@@ -15,6 +15,7 @@
 
 //Declarations
 char * strncat(char *dest, const char * src, size_t n);
+char * strncpy(char * dest, const char * src, size_t n);
 
 //Length of pause between frames set by initRacers
 static long pause;
@@ -37,11 +38,19 @@ Racer * makeRacer( char * name, int position){
   r->dist = 0;
   r->row = position;
   char * graphic = malloc(MAX_CAR_LEN+1);//car graphic
-  graphic = "~O=";//back of car
+  char * carBack = "~O=";
+  strncpy(graphic,carBack,3);
   strncat(graphic, name, 6);//Name
   char * carFront = "o>";//front of car
   strncat(graphic, carFront, 3);
   graphic[MAX_CAR_LEN+1] = 0x00;//null terminate
   r->graphic = graphic;
   return r;
+}
+
+///destroyRacer
+///Destroys all dynamically allocated storage for a racer
+void destroyRacer ( Racer * r){
+  free(r->graphic);
+  free(r);
 }
