@@ -21,13 +21,13 @@ char * strncat(char *dest, const char * src, size_t n);
 char * strncpy(char * dest, const char * src, size_t n);
 
 //Length of pause between frames set by initRacers
-static long pause;
+static long waitPeriod;
 pthread_mutex_t mutex;
 
 ///initRacers - Do setup work for all racers at the start of the program
 ///@param : miliseconds - length of pause between steps in animation
 void initRacers(long milliseconds){
-  pause = milliseconds;//set global static variable
+  waitPeriod = milliseconds;//set global static variable
   pthread_mutex_init(&mutex, NULL);
 }
 
@@ -63,13 +63,13 @@ void destroyRacer ( Racer * r){
 ///displayRacer
 ///Displays the racer to the terminal using Display.h
 ///@param : racer - void * for use by pthreads in run()
-void displayRacer(void * racer){
+void displayRacer(Racer * racer){
   //lock the critical section
   pthread_mutex_lock(&mutex);
   //loop through graphic
-  for(int i = 0; i < MAX_CAR_LENGTH; i++){
+  for(int i = 0; i < MAX_CAR_LEN; i++){
     //Set cursor to correct place
-    set_cur_pos(r->row+1, r->dist+i);
+    set_cur_pos(racer->row+1, racer->dist+i);
     //Place that piece of the car
     put(racer->graphic[i]);
   }
@@ -79,12 +79,12 @@ void displayRacer(void * racer){
 ///eraseRacer
 ///Erarses the racer from the screen using Display.h
 ///@param : racer - void * for use by pthreads in run()
-void eraseRacer(void * racer){
+void eraseRacer(Racer * racer){
   pthread_mutex_lock(&mutex);
   //loop through graphic
-  for(int i = 0; i < MAX_CAR_LENGTH; i++){
+  for(int i = 0; i < MAX_CAR_LEN; i++){
     //set cursor to correct place
-    set_cur_pos(r->row+1, r->dist+i);
+    set_cur_pos(racer->row+1, racer->dist+i);
     //erase that section of the car
     put(' ');
   }
@@ -96,29 +96,30 @@ void eraseRacer(void * racer){
 ///Initialize the display of the racer's graphic and run the racer thread.
 ///@param : racer - the racer to simulate
 void * run(void * racer){
+  Racer * r = (Racer *) racer;
   //Initialize racer on display
-  displayRacer(racer);
+  displayRacer(r);
   while(1){
     //Calculate random waiting period between 0 and initial delay value
-    long wait = (rand() % pause);
+    long wait = (rand() % waitPeriod);
     if(wait <= 3){
-      racer->graphic[1] = 'X';
-      displayRacer(racer);
-      destroyRacer(racer);
+      r->graphic[1] = 'X';
+      displayRacer(r);
+      destroyRacer(r);
       pthread_exit(NULL);
       return;
     }
     usleep(wait*1000);//sleep for wait milliseconds
   
     //advance foward by one 
-    eraseRacer(racer);//erase current display of racer
-    racer->dist++;//advance by 1
-    displayRacer(racer);//display racer in new position
+    eraseRacer(r);//erase current display of racer
+    r->dist++;//advance by 1
+    displayRacer(r);//display racer in new position
     
     //End condition of thread
-    if(racer->dist >= FINISH_LINE){
+    if(r->dist >= FINISH_LINE){
       //Racer at finish line
-      destroyRacer(racer);
+      destroyRacer(r);
       pthread_exit(NULL);
       return;
     }
