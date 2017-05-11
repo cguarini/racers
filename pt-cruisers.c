@@ -121,10 +121,14 @@ int main(int argc, char * argv[]){
   queue * rq = init_queue();
   int counter = 0;
   while(queue_size(q)){
-    Racer * r = makeRacer(dequeue(q), counter);
+    char * n = dequeue(q);
+    Racer * r = makeRacer(n, counter);
+    free(n);
     enqueue(rq, r, 0);
     counter++;
   }
+
+  destroyQueue(q);
 
   //Clear the terminal
   clear();
