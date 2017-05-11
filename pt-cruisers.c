@@ -104,6 +104,9 @@ int main(int argc, char * argv[]){
   }
 
 
+  //Initialize the racers
+  initRacers(maxspeed);
+
   //Create the racers
   queue * rq = init_queue();
   int counter = 0;
@@ -112,6 +115,10 @@ int main(int argc, char * argv[]){
     enqueue(rq, r, 0);
     counter++;
   }
+
+  //Clear the terminal
+  clear();
+
 
 }
 
